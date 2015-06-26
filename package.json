@@ -1,0 +1,12 @@
+{
+  "name": "timecard",
+  "version": "1.0.0",
+  "description": "A time tracking console app.",
+  "bin": "cli.js",
+  "author": "Tim Hambourger",
+  "license": "MIT",
+  "dependencies": {
+    "moment": "^2.10.3",
+    "split": "^1.0.0"
+  }
+}
