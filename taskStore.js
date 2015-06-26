@@ -1,36 +1,36 @@
-var tasks = {},
-	currTask = null,
-	currTaskStart = null;
+module.exports = TaskStore;
 
-exports.tasks = tasks;
-exports.startTask = startTask;
-exports.endCurrTask = endCurrTask;
-
-function startTask(task, time) {
-	// if there's a current task, end it
-	if (currTask !== null) endCurrTask(time);
-	
-	// mark the passed task as the current task
-	currTask = task;
-	currTaskStart = time;
+function TaskStore() {
+	this.tasks = {};
+	this._currTask = null;
+	this._currTaskStart = null;
 }
 
-function endCurrTask(time) {
-	if (currTask === null) return false;
+TaskStore.prototype.startTask = function (task, time) {
+	// if there's a current task, end it
+	if (this._currTask !== null) this.endCurrTask(time);
+	
+	// mark the passed task as the current task
+	this._currTask = task;
+	this._currTaskStart = time;
+};
+
+TaskStore.prototype.endCurrTask = function (time) {
+	if (this._currTask === null) return false;
 
 	// calculate duration from currTaskStart
-	var elapsedTime = time.diff(currTaskStart, 'minutes');
+	var elapsedTime = time.diff(this._currTaskStart, 'minutes');
 	
 	// always assume 0 <= elapsedTime < 1 day
 	if (elapsedTime < 0) elapsedTime += 24*60;
 
 	// add it to time for current task
-	if (!tasks[currTask]) tasks[currTask] = 0;
-	tasks[currTask] += elapsedTime;
+	if (!this.tasks[this._currTask]) this.tasks[this._currTask] = 0;
+	this.tasks[this._currTask] += elapsedTime;
 	
 	// null out currTask and currTaskStart
-	currTask = null;
-	currTaskStart = null;
+	this._currTask = null;
+	this._currTaskStart = null;
 
 	return true;
-}
+};

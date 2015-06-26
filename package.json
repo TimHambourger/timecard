@@ -2,6 +2,7 @@
   "name": "timecard",
   "version": "1.0.0",
   "description": "A time tracking console app.",
+  "main": "timecard.js",
   "bin": "cli.js",
   "author": "Tim Hambourger",
   "license": "MIT",
