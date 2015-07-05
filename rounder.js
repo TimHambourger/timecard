@@ -4,7 +4,7 @@ var Strategies = {
     none: 'none', // no rounding
     each: 'each', // round each task individually
     all: 'all' // round all tasks so that rounded total approximates true total
-}
+};
 
 function Rounder(rounding, roundTo) {
     this.rounding = rounding;
@@ -55,9 +55,9 @@ Rounder.prototype.roundTasks = function (tasks) {
     }
 
     return adjustedTasks;
-}
+};
 
 // round mins to nearest available increment
 Rounder.prototype.round = function (mins) {
     return Math.round(mins / this.roundTo) * this.roundTo;
-}
+};

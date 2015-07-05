@@ -16,13 +16,13 @@ TimeCard.prototype.readStream = function (stream, cb) {
         .on('data', this.readLine.bind(this))
         .on('end', cb)
         .on('error', cb);
-}
+};
 
 TimeCard.prototype.readString = function (str) {
     var lines = str.split(/\r?\n/);
     for (var i = 0; i < lines.length; i++)
         this.readLine(lines[i]);
-}
+};
 
 TimeCard.prototype.readLine = function (line) {
     // ignore empty lines and commented lines beginning with #
@@ -72,7 +72,7 @@ TimeCard.prototype.readLine = function (line) {
     } else if (!this.taskStore.endCurrTask(time)) {
         throw new Error('Encountered out without matching in:\n' + line);
     }
-}
+};
 
 TimeCard.prototype.writeStream = TimeCard.prototype._writeWriteable = function (stream) {
     var roundedTasks = this.rounder.roundTasks(this.taskStore.tasks);
@@ -83,13 +83,13 @@ TimeCard.prototype.writeStream = TimeCard.prototype._writeWriteable = function (
     var total = 0;
     for (var task in roundedTasks) total += roundedTasks[task];
     stream.write(formatTime(total) + ' -- TOTAL\n');
-}
+};
 
 TimeCard.prototype.writeString = function () {
     var writeable = new StringWriteable();
     this._writeWriteable(writeable);
     return writeable.contents;
-}
+};
 
 function formatTime(mins) {
     return mins / 60 + '';
@@ -101,4 +101,4 @@ function StringWriteable() {
 
 StringWriteable.prototype.write = function (val) {
     this.contents += val;
-}
+};
