@@ -2,11 +2,17 @@ module.exports = TimeCard;
 
 var split = require('split'),
     moment = require('moment'),
+    DayStartCalc = require('./dayStart'),
     TaskStore = require('./taskStore'),
     Rounder = require('./rounder');
 
 function TimeCard (opts) {
-    this.dayStart = opts.dayStart;
+    opts = opts || {};
+    opts.dayStart = opts.dayStart || '7am';
+    opts.rounding = opts.rounding || 'none';
+    opts.roundTo = opts.roundTo   || 1;
+
+    this._dayStart = new DayStartCalc(opts.dayStart);
     this.taskStore = new TaskStore();
     this.rounder = new Rounder(opts.rounding, opts.roundTo)
 }
@@ -38,7 +44,7 @@ TimeCard.prototype.readLine = function (line) {
     //
     // Time has format [h]h[:mm][am|pm]
     // If minutes are not provided, assumed to be ':00'.
-    // If am/pm is not provided, time is assumed to be between 7am and 6:59pm.
+    // If am/pm is not provided, it is calculated based on the TimeCard's dayStart option.
     // Also, am/pm can be shorted to a/p, and can be capitalized too
     var re = /^(\d\d?)(:\d\d)?(am?|pm?)?\s+(in|out)(?:\s+(.*))?$/i,
         matches = re.exec(line.trim());
@@ -58,10 +64,10 @@ TimeCard.prototype.readLine = function (line) {
     // 1) minutes are options
     timeString += mins || ':00';
 
-    // 2) am/pm is optional. If not provided, assume 12:00 - 6:59 is pm and 7 - 11:59 is am.
-    var hoursInt = parseInt(hours);
+    // 2) am/pm is optional. If not provided, use dayStart option to determine.
+    if (!amPm) amPm = this._dayStart.getAmPm(timeString);
 
-    timeString += amPm || ((hoursInt < 7 || hoursInt === 12) ? 'pm' : 'am');
+    timeString += amPm;
 
     var time = moment(timeString, 'h:mma'),
         isTaskStart = inOut.toLowerCase() === 'in',
