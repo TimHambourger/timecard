@@ -11,7 +11,9 @@ function TimeCard (opts) {
     opts.dayStart = opts.dayStart || '7am';
     opts.rounding = opts.rounding || 'none';
     opts.roundTo = opts.roundTo   || 1;
+    opts.totalsOnly = opts.totalsOnly || false;
 
+    this._opts = opts;
     this._dayStart = new DayStartCalc(opts.dayStart);
     this.taskStore = new TaskStore();
     this.rounder = new Rounder(opts.rounding, opts.roundTo)
@@ -82,9 +84,11 @@ TimeCard.prototype.readLine = function (line) {
 
 TimeCard.prototype.writeStream = TimeCard.prototype._writeWriteable = function (stream) {
     var roundedTasks = this.rounder.roundTasks(this.taskStore.tasks);
-    for (var task in roundedTasks)
-        stream.write(formatTime(roundedTasks[task]) + ' -- ' + (task || '(default)') + '\n');
-    stream.write('\n');
+    if (!this._opts.totalsOnly) {
+        for (var task in roundedTasks)
+            stream.write(formatTime(roundedTasks[task]) + ' -- ' + (task || '(default)') + '\n');
+        stream.write('\n');
+    }
 
     var total = 0;
     for (var task in roundedTasks) total += roundedTasks[task];
