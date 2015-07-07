@@ -13,22 +13,25 @@ var rounding = 'all',
     roundTo = 15;
 
 var files = argv._,
-    multiFile = files.length > 1;
+    multiFile = files.length > 1,
+    i = 0;
 
-for (var i = 0; i < files.length; i++) {
+processNext();
 
-    var _file = files[i],
-        _timecard = new TimeCard({
+function processNext() {
+    if (i >= files.length) return;
+
+    var file = files[i++],
+        timecard = new TimeCard({
             rounding: rounding,
             roundTo: roundTo,
             totalsOnly: argv.totalsOnly
         });
 
-    (function (file, timecard) {
-        timecard.readStream(fs.createReadStream(file, { encoding: 'utf-8' }), function (err) {
-            if (err) throw err;
-            if (multiFile) console.log('\n' + path.resolve(file));
-            timecard.writeStream(process.stdout);
-        });
-   })(_file, _timecard); 
+    timecard.readStream(fs.createReadStream(file, { encoding: 'utf-8' }), function (err) {
+        if (err) throw err;
+        if (multiFile) console.log('\n' + path.resolve(file));
+        timecard.writeStream(process.stdout);
+        processNext();
+    });
 }
