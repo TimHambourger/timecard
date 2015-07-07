@@ -5,6 +5,7 @@ var fs = require('fs'),
     TimeCard = require('./timecard'),
     argv = require('yargs')
         .boolean('totalsOnly')
+        .boolean('stdin')
         .alias('T', 'totalsOnly')
         .argv;
 
@@ -12,7 +13,7 @@ var fs = require('fs'),
 var rounding = 'all',
     roundTo = 15;
 
-var files = argv._,
+var files = argv.stdin ? ['dummy'] : argv._,
     multiFile = files.length > 1,
     i = 0;
 
@@ -26,9 +27,11 @@ function processNext() {
             rounding: rounding,
             roundTo: roundTo,
             totalsOnly: argv.totalsOnly
-        });
+        }),
+        stream = argv.stdin ? process.stdin
+            : fs.createReadStream(file, { encoding: 'utf-8' }); 
 
-    timecard.readStream(fs.createReadStream(file, { encoding: 'utf-8' }), function (err) {
+    timecard.readStream(stream, function (err) {
         if (err) throw err;
         if (multiFile) console.log('\n' + path.resolve(file));
         timecard.writeStream(process.stdout);
