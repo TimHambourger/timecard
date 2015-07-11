@@ -25,21 +25,18 @@ new PrefStore(function (err, prefs) {
         var key = params[0];
         if (argv['delete']) prefs.remove(key);
         else if (params.length > 1) prefs.write(key, params[1]);
-        else console.log(prefs.readString(key) || '');
+        else console.log(prefs.read(key) || '');
         return;
     }
 
-    var dayStart = argv.dayStart || prefs.readString('dayStart'),
-        rounding = argv.rounding || prefs.readString('rounding'),
-        roundTo = (argv.roundTo !== undefined)
-            ? argConverter.parseInt(argv.roundTo, function () {
-                throw new Error('Unable to parse CLI argument \'roundTo\' with value \'' + argv.roundTo + '\'.');
-            })
-            : prefs.readInt('roundTo', function (readErr) {
-                if (readErr.readFailure === PrefStore.ReadFailure.KeyNotFound) return undefined;
-                throw readErr;
-            }),
+    var dayStart = argv.dayStart || prefs.read('dayStart'),
+        rounding = argv.rounding || prefs.read('rounding'),
+        roundTo = (argv.roundTo !== undefined) ? argv.roundTo : prefs.read('roundTo'),
         totalsOnly = argv.totalsOnly;
+
+    if (roundTo !== undefined) roundTo = argConverter.parseInt(roundTo, function () {
+        throw new Error('Unable to parse roundTo option with value \'' + roundTo + '\'. Must be an integer.');
+    });
     
     var files = argv.stdin ? ['dummy'] : argv._,
         multiFile = files.length > 1,

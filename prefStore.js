@@ -36,36 +36,9 @@ function PrefStore(cb) {
 
 }
 
-PrefStore.prototype.readString = function (key, cb) {
+PrefStore.prototype.read = function (key) {
     if (!this._prefsObj) throw new Error(loadingErrorMsg);
-    var val = this._prefsObj[key];
-    if (val === undefined && cb)
-        return cb(getKeyNotFoundError(key));
-    return val;
-};
-
-PrefStore.prototype.readBool = function (key, cb) {
-    if (!this._prefsObj) throw new Error(loadingErrorMsg);
-    var val = this._prefsObj[key];
-    if (val === undefined) {
-        if (cb) return cb(getKeyNotFoundError(key));
-        return undefined;
-    }
-    return argConverter.parseBool(val, function () {
-        return cb(getUnparseableValueError(key, val));
-    });
-};
-
-PrefStore.prototype.readInt = function (key, cb) {
-    if (!this._prefsObj) throw new Error(loadingErrorMsg);
-    var val = this._prefsObj[key];
-    if (val === undefined) {
-        if (cb) return cb(getKeyNotFoundError(key));
-        return undefined;
-    }
-    return argConverter.parseInt(val, function () {
-        return cb(getUnparseableValueError(key, val));
-    });
+    return this._prefsObj[key];
 };
 
 PrefStore.prototype.write = function (key, val, cb) {
@@ -101,25 +74,3 @@ PrefStore.prototype._writePrefsObj = function (newPrefs, cb) {
 
 };
 
-PrefStore.ReadFailure = {
-    KeyNotFound: 'KEY NOT FOUND',
-    UnparseableValue: 'UNPARSEABLE VALUE'
-};
-
-function getKeyNotFoundError(key) {
-    return new PrefReadError(PrefStore.ReadFailure.KeyNotFound, 'Could not find a preference with key \'' + key + '\'.');
-}
-
-function getUnparseableValueError(key, val) {
-    return new PrefReadError(PrefStore.ReadFailure.UnparseableValue, 'Could not parse the value \'' + val
-        + '\' for key \'' + key + '\'.');
-}
-
-function PrefReadError(failureType, details) {
-    this.name = 'PrefReadError';
-    this.readFailure = failureType;
-    this.message = failureType + ': ' + details;
-}
-
-PrefReadError.prototype = Object.create(Error.prototype);
-PrefReadError.prototype.constructor = PrefReadError;
