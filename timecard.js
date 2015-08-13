@@ -12,6 +12,7 @@ function TimeCard (opts) {
     opts.rounding = opts.rounding || 'none';
     opts.roundTo = opts.roundTo   || 1;
     opts.totalsOnly = opts.totalsOnly || false;
+    opts.filter = opts.filter;
 
     this._opts = opts;
     this._dayStart = new DayStartCalc(opts.dayStart);
@@ -86,12 +87,15 @@ TimeCard.prototype.writeStream = TimeCard.prototype._writeWriteable = function (
     var roundedTasks = this.rounder.roundTasks(this.taskStore.tasks);
     if (!this._opts.totalsOnly) {
         for (var task in roundedTasks)
-            stream.write(formatTime(roundedTasks[task]) + ' -- ' + (task || '(default)') + '\n');
+            if (!this._opts.filter || task.indexOf(this._opts.filter) >= 0)
+                stream.write(formatTime(roundedTasks[task]) + ' -- ' + (task || '(default)') + '\n');
         stream.write('\n');
     }
 
     var total = 0;
-    for (var task in roundedTasks) total += roundedTasks[task];
+    for (var task in roundedTasks)
+        if (!this._opts.filter || task.indexOf(this._opts.filter) >= 0)
+            total += roundedTasks[task];
     stream.write(formatTime(total) + ' -- TOTAL\n');
 };
 

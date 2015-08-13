@@ -12,6 +12,7 @@ var fs = require('fs'),
         .boolean('stdin')
         .alias('d', 'delete')
         .alias('T', 'totalsOnly')
+        .alias('f', 'filter')
         .argv;
 
 new PrefStore(function (err, prefs) {
@@ -32,7 +33,8 @@ new PrefStore(function (err, prefs) {
     var dayStart = argv.dayStart || prefs.read('dayStart'),
         rounding = argv.rounding || prefs.read('rounding'),
         roundTo = (argv.roundTo !== undefined) ? argv.roundTo : prefs.read('roundTo'),
-        totalsOnly = argv.totalsOnly;
+        totalsOnly = argv.totalsOnly,
+        filter = argv.filter;
 
     if (roundTo !== undefined) roundTo = argConverter.parseInt(roundTo, function () {
         throw new Error('Unable to parse roundTo option with value \'' + roundTo + '\'. Must be an integer.');
@@ -52,7 +54,8 @@ new PrefStore(function (err, prefs) {
                 dayStart: dayStart,
                 rounding: rounding,
                 roundTo: roundTo,
-                totalsOnly: totalsOnly
+                totalsOnly: totalsOnly,
+                filter: filter
             }),
             stream = argv.stdin ? process.stdin
                 : fs.createReadStream(file, { encoding: 'utf-8' }); 
